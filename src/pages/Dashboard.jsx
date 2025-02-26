@@ -16,6 +16,8 @@ const Dashboard = () => {
     const rawFeedbacks = [
       { id: 1, message: "Great service!", timestamp: "02/22/2025 14:30:45" },
       { id: 2, message: "Could improve the seating arrangement.", timestamp: "02/22/2025 09:15:30" },
+      { id: 1, message: "The preaching bleesed me today! Thank you Pastor Bela.", timestamp: "02/28/2025 15:30:45" },
+      { id: 2, message: "My name is Joseph, Are there any volunteering opportunities? Please reach me on 0725406004. Thanks.", timestamp: "03/02/2025 19:25:01" },
     ];
 
     const formattedFeedbacks = rawFeedbacks.map((feedback) => {
