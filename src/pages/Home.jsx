@@ -14,7 +14,7 @@ const Home = () => {
 
       <Paper elevation={3} sx={{ p: 4, mt: 3 }}>
         <Typography variant="h6" fontWeight="medium" gutterBottom>
-            Let’s get started!
+            What would you like to do?
         </Typography>
 
         <Box display="flex" flexDirection="column" gap={2} mt={2}>
@@ -32,7 +32,7 @@ const Home = () => {
             component={Link} 
             to="/dashboard"
           >
-            Reset Password
+            Open Dashboard
           </Button>
         </Box>
       </Paper>
