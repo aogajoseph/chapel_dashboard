@@ -1,37 +1,54 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Paper, Button, Box } from "@mui/material";
+import { Container, Typography, Paper, Button, Box, CircularProgress } from "@mui/material";
+import { supabase } from "../supabaseClient";
 import FeedbackList from "../components/FeedbackList";
 import FilterControls from "../components/FilterControls";
 
 const Dashboard = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [filteredFeedbacks, setFilteredFeedbacks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchFeedback();
-  }, []);
+    console.log("Updated feedbacks:", feedbacks);
+  }, [feedbacks]);    
 
-  const fetchFeedback = () => {
-    // Fetch feedback from AWS (replace with actual API call)
-    const rawFeedbacks = [
-      { id: 1, message: "Great service!", timestamp: "02/22/2025 14:30:45" },
-      { id: 2, message: "Could improve the seating arrangement.", timestamp: "02/22/2025 09:15:30" },
-      { id: 1, message: "The preaching bleesed me today! Thank you Pastor Bela.", timestamp: "02/28/2025 15:30:45" },
-      { id: 2, message: "My name is Joseph, Are there any volunteering opportunities? Please reach me on 0725406004. Thanks.", timestamp: "03/02/2025 19:25:01" },
-    ];
-
-    const formattedFeedbacks = rawFeedbacks.map((feedback) => {
-      const dateObj = new Date(feedback.timestamp);
-      return {
-        ...feedback,
-        formattedDate: dateObj.toISOString().split("T")[0], // Extract YYYY-MM-DD
-        formattedTime: dateObj.toLocaleTimeString(),
-      };
-    });
-
-    setFeedbacks(formattedFeedbacks);
-    setFilteredFeedbacks(formattedFeedbacks);
+  const fetchFeedback = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("chapel-feedback")
+        .select("*")
+        .order("created_at", { ascending: false }); 
+  
+      console.log("Fetched data:", data); // Debugging  
+  
+      if (error) {
+        console.error("Error fetching feedback:", error.message);
+        return;
+      }
+  
+      if (!data || data.length === 0) {
+        console.warn("No feedback found!"); // Check if data is empty
+        return;
+      }
+  
+      const formattedFeedbacks = data.map((feedback) => {
+        const dateObj = new Date(feedback.created_at);
+        return {
+          ...feedback,
+          formattedDate: dateObj.toISOString().split("T")[0],
+          formattedTime: dateObj.toLocaleTimeString(),
+        };
+      });
+  
+      setFeedbacks(formattedFeedbacks);
+      setFilteredFeedbacks(formattedFeedbacks);
+    } catch (err) {
+      console.error("Unexpected error fetching feedback:", err);
+    }
   };
+  
 
   // Function to handle filtering
   const handleFilter = ({ searchText, startDate, endDate }) => {
@@ -57,7 +74,7 @@ const Dashboard = () => {
   // Handle logout (replace with actual logout logic)
   const handleLogout = () => {
     console.log("Logging out...");
-    // Add actual logout logic here (e.g., Firebase sign out, redirect)
+    // Add Supabase auth sign-out logic if needed
   };
 
   return (
@@ -112,7 +129,15 @@ const Dashboard = () => {
           </Button>
         </Box>
 
-        <FeedbackList feedbacks={filteredFeedbacks} />
+        {loading ? (
+          <Box display="flex" justifyContent="center" mt={2}>
+            <CircularProgress />
+          </Box>
+        ) : error ? (
+          <Typography color="error">{error}</Typography>
+        ) : (
+          <FeedbackList feedbacks={filteredFeedbacks} />
+        )}
       </Paper>
     </Container>
   );

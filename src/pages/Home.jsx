@@ -30,9 +30,9 @@ const Home = () => {
             variant="outlined" 
             color="secondary" 
             component={Link} 
-            to="/dashboard"
+            to="/reset-password"
           >
-            Open Dashboard
+            Reset Password
           </Button>
         </Box>
       </Paper>
