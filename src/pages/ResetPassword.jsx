@@ -1,16 +1,23 @@
 import React, { useState } from "react";
 import { Container, TextField, Button, Typography, Paper, Box } from "@mui/material";
+import { supabase } from "../supabaseClient"; // Import Supabase client
 
 const ResetPassword = () => {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleResetPassword = async (e) => {
     e.preventDefault();
-    console.log("Password reset request for:", email);
-    setSubmitted(true);
+    setError(null);
 
-    // Here, you would call your backend to send a password reset link.
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setSubmitted(true);
+    }
   };
 
   return (
@@ -24,7 +31,7 @@ const ResetPassword = () => {
         </Typography>
 
         {!submitted ? (
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+          <Box component="form" onSubmit={handleResetPassword} sx={{ mt: 2 }}>
             <TextField
               fullWidth
               label="Email Address"
@@ -35,6 +42,13 @@ const ResetPassword = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+
+            {error && (
+              <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+                {error}
+              </Typography>
+            )}
+
             <Button type="submit" variant="contained" color="secondary" fullWidth sx={{ mt: 2 }}>
               Send Reset Link
             </Button>

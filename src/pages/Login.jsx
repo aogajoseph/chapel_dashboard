@@ -1,18 +1,41 @@
 import React, { useState } from "react";
 import { Container, TextField, Button, Typography, Paper, Box, Link } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "../supabaseClient"; // Import Supabase client
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Logging in with:", { email, password });
-
-    // Implement authentication logic here
+    setLoading(true);
+    setError(null);
+  
+    // Restrict login to only the admin email
+    if (email !== "jonyangomail@gmail.com") {
+      setError("Invalid Email or Password");
+      setLoading(false);
+      return;
+    }
+  
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+  
+    if (error) {
+      setError("Invalid email or password.");
+      setLoading(false);
+    } else {
+      console.log("User logged in:", data);
+      navigate("/dashboard"); // Redirect to admin dashboard
+    }
   };
+  
 
   return (
     <Container maxWidth="xs" sx={{ mt: 5 }}>
@@ -46,16 +69,21 @@ const Login = () => {
             required
           />
 
-          <Button type="submit" variant="contained" color="secondary" fullWidth sx={{ mt: 2 }}>
-            Login
+          {error && (
+            <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+              {error}
+            </Typography>
+          )}
+
+          <Button type="submit" variant="contained" color="secondary" fullWidth sx={{ mt: 2 }} disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
           </Button>
 
           <Box sx={{ textAlign: "left", mt: 1, mb: 2 }}>
             <Link component="button" variant="body2" onClick={() => navigate("/reset-password")}>
               Forgot password?
             </Link>
-          </Box> 
-
+          </Box>
         </Box>
       </Paper>
     </Container>
